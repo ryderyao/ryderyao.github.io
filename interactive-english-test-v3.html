@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國小二年級英文測驗</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .question {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .option {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        .selected {
+            background-color: #3498db;
+            color: white;
+        }
+        .correct {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .incorrect {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #submitBtn, #restartBtn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        #submitBtn:hover, #restartBtn:hover {
+            background-color: #34495e;
+        }
+        #result {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        .explanation {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>國小二年級英文測驗</h1>
+    <div id="quiz"></div>
+    <button id="submitBtn">提交答案</button>
+    <button id="restartBtn" style="display: none;">重新測驗</button>
+    <div id="result"></div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What color is a banana?",
+                options: ["Red", "Blue", "Yellow", "Green"],
+                correct: 2,
+                explanation: "香蕉是黃色的。成熟的香蕉通常呈現黃色，這是最常見和容易識別的特徵。"
+            },
+            {
+                question: "How many legs does a cat have?",
+                options: ["Two", "Four", "Six", "Eight"],
+                correct: 1,
+                explanation: "貓有四條腿。大多數哺乳動物，包括貓，都有四條腿 - 兩條前腿和兩條後腿。"
+            },
+            {
+                question: "Which animal says 'woof'?",
+                options: ["Cat", "Dog", "Bird", "Fish"],
+                correct: 1,
+                explanation: "狗發出'汪汪'(woof)的叫聲。這是狗的典型叫聲，用來表達各種情緒或需求。"
+            },
+            {
+                question: "What do you use to write?",
+                options: ["Fork", "Spoon", "Pencil", "Plate"],
+                correct: 2,
+                explanation: "鉛筆是用來寫字的工具。它是最常見的書寫工具之一，特別是在學校裡。"
+            },
+            {
+                question: "Which is a fruit?",
+                options: ["Carrot", "Apple", "Potato", "Onion"],
+                correct: 1,
+                explanation: "蘋果是一種水果。它含有種子，生長在樹上，這些都是水果的特徵。胡蘿蔔、馬鈴薯和洋蔥都是蔬菜。"
+            },
+            {
+                question: "What do you wear on your feet?",
+                options: ["Hat", "Gloves", "Shoes", "Scarf"],
+                correct: 2,
+                explanation: "鞋子是穿在腳上的。它們保護我們的腳，讓我們能舒適地行走。帽子戴在頭上，手套戴在手上，圍巾圍在脖子上。"
+            },
+            {
+                question: "How do you say 'hello' in Chinese?",
+                options: ["Bonjour", "Hola", "Ni hao", "Ciao"],
+                correct: 2,
+                explanation: "'你好'(Ni hao)是中文的'你好'。'Bonjour'是法語，'Hola'是西班牙語，'Ciao'是義大利語的問候語。"
+            },
+            {
+                question: "Which is the first letter of the alphabet?",
+                options: ["Z", "X", "Y", "A"],
+                correct: 3,
+                explanation: "A是英文字母表的第一個字母。字母表的順序是從A開始，到Z結束。"
+            },
+            {
+                question: "What do you drink when you're thirsty?",
+                options: ["Stone", "Water", "Sand", "Wood"],
+                correct: 1,
+                explanation: "水是我們口渴時喝的東西。水對我們的身體非常重要，能夠解渴並保持身體健康。石頭、沙子和木頭都不是飲品。"
+            },
+            {
+                question: "How many days are in a week?",
+                options: ["Five", "Six", "Seven", "Eight"],
+                correct: 2,
+                explanation: "一週有七天。這七天是：星期一、星期二、星期三、星期四、星期五、星期六和星期日。"
+            },
+            {
+                question: "What color is the sky on a clear day?",
+                options: ["Green", "Blue", "Red", "Yellow"],
+                correct: 1,
+                explanation: "晴朗的天空通常呈現藍色。這是因為大氣層散射太陽光中的藍色波長。"
+            },
+            {
+                question: "Which animal can fly?",
+                options: ["Fish", "Bird", "Cat", "Dog"],
+                correct: 1,
+                explanation: "鳥類是能夠飛行的動物。它們有翅膀和輕盈的骨骼結構，使它們能夠在空中飛翔。"
+            },
+            {
+                question: "What do you use to brush your teeth?",
+                options: ["Fork", "Toothbrush", "Spoon", "Knife"],
+                correct: 1,
+                explanation: "牙刷是用來刷牙的工具。它的設計特別適合清潔牙齒和牙齦。"
+            },
+            {
+                question: "Which season comes after summer?",
+                options: ["Spring", "Winter", "Fall", "Summer"],
+                correct: 2,
+                explanation: "秋天（Fall）是夏天之後的季節。四季的順序是：春、夏、秋、冬。"
+            },
+            {
+                question: "What shape is a ball?",
+                options: ["Square", "Triangle", "Circle", "Rectangle"],
+                correct: 2,
+                explanation: "球是圓形的。圓形物體可以輕易滾動，這就是為什麼許多運動都使用球形物體。"
+            }
+        ];
+
+        let currentQuestions = [];
+
+        const quizContainer = document.getElementById('quiz');
+        const submitButton = document.getElementById('submitBtn');
+        const restartButton = document.getElementById('restartBtn');
+        const resultContainer = document.getElementById('result');
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function getRandomQuestions(n) {
+            shuffleArray(quizData);
+            return quizData.slice(0, n);
+        }
+
+        function buildQuiz() {
+            quizContainer.innerHTML = '';
+            currentQuestions = getRandomQuestions(10);
+            currentQuestions.forEach((questionData, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.innerHTML = `
+                    <p>${index + 1}. ${questionData.question}</p>
+                    <div class="options">
+                        ${questionData.options.map((option, optionIndex) => `
+                            <div class="option" data-index="${index}" data-option="${optionIndex}">${option}</div>
+                        `).join('')}
+                    </div>
+                    <div class="explanation">${questionData.explanation}</div>
+                `;
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        function selectOption(e) {
+            if (e.target.classList.contains('option')) {
+                const questionIndex = e.target.getAttribute('data-index');
+                const optionIndex = e.target.getAttribute('data-option');
+                const options = document.querySelectorAll(`.option[data-index="${questionIndex}"]`);
+                options.forEach(option => option.classList.remove('selected'));
+                e.target.classList.add('selected');
+            }
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            currentQuestions.forEach((questionData, index) => {
+                const selectedOption = document.querySelector(`.option.selected[data-index="${index}"]`);
+                const options = document.querySelectorAll(`.option[data-index="${index}"]`);
+                const explanation = document.querySelector(`.question:nth-child(${index + 1}) .explanation`);
+                
+                options[questionData.correct].classList.add('correct');
+                explanation.style.display = 'block';
+
+                if (selectedOption) {
+                    if (parseInt(selectedOption.getAttribute('data-option')) === questionData.correct) {
+                        score += 10;
+                    } else {
+                        selectedOption.classList.add('incorrect');
+                    }
+                }
+            });
+            resultContainer.textContent = `你的得分是: ${score} / 100`;
+            submitButton.style.display = 'none';
+            restartButton.style.display = 'block';
+        }
+
+        function restartQuiz() {
+            buildQuiz();
+            submitButton.style.display = 'block';
+            restartButton.style.display = 'none';
+            resultContainer.textContent = '';
+        }
+
+        buildQuiz();
+        quizContainer.addEventListener('click', selectOption);
+        submitButton.addEventListener('click', submitQuiz);
+        restartButton.addEventListener('click', restartQuiz);
+    </script>
+</body>
+</html>
